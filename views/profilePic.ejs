@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+</head>
+<body class="bg-zinc-900 text-white p-10">
+    <h1 class="mb-5">upload your profile pic.</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data" >
+        <div class=" flex gap-2">
+            <input type="file" class="border bg-white text-black border-zinc-700 p-2  " name="image">
+            <input class="bg-yellow-400 text-black px-2 py-1 rounded-md" type="submit" value="Update pic.">
+        </div>
+    </form>
+    
+
+</body>
+</html>
