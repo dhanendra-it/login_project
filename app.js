@@ -24,27 +24,33 @@ app.get("/" , (req,res)=>{
     res.render("index");
 })
 
-app.post("/create" ,async (req,res)=>{
+app.post("/create", async (req, res) => {
+    let { name, email, password, age } = req.body;
 
-    let {name,email,password,age} = req.body;
+    let existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+        return res.send("User already has an account");
+    }
 
-    let user =  await userModel.findOne({email})
-    if(user){res.send("user have account")}
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
 
-    bcrypt.genSalt(10 , (err, salt )=>{
-        bcrypt.hash(password , salt , async (err , hash)=> {
-            let user = userModel.create({
-                name,
-                email,
-                password: hash,
-                age,
-            })
-            let token = jwt.sign({email:email , userid: user._id } , "shh");
-            res.cookie("token" , token);
-            res.redirect("/login");
-        })
-    }) 
-})
+    let newUser = await userModel.create({
+        name,
+        email,
+        password: hash,
+        age,
+    });
+
+    let token = jwt.sign(
+        { email: email, userid: newUser._id },
+        process.env.JWT_SECRET
+    );
+
+    res.cookie("token", token);
+    res.redirect("/login");
+});
+
 app.get("/login" , (req,res) =>{
     res.render("login")
 })
@@ -111,9 +117,11 @@ app.post("/posts", isLogIN , async (req,res)=>{
     res.redirect("/profile")
 })
 
-app.get("/edit/profile/:id" , isLogIN , async (req,res)=>{
-    res.render("profilePic" , {user})
-})
+app.get("/edit/profile/:id", isLogIN, async (req, res) => {
+    let user = await userModel.findOne({ email: req.user.email });
+    res.render("profilePic", { user });
+});
+
 app.post("/upload", isLogIN , upload.single("image"), async (req, res) => {
 
     await userModel.findOneAndUpdate({email: req.user.email} , {profile: req.file.filename } , {new: true});  
@@ -129,4 +137,4 @@ function isLogIN(req,res,next){
     }
 }
 
-app.listen(3000);
+module.exports = app;
