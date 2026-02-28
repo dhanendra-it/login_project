@@ -9,6 +9,8 @@ const user = require("./models/user");
 const path = require("path");
 const multer = require("multer");
 const upload = require("./models/profilePic");
+const connectDB = require("./db");
+connectDB();
 
 app.set("view engine" , "ejs")
 app.use(express.json());
